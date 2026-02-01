@@ -49,6 +49,9 @@ desktop.ini
 # Whisper cache
 ~/.cache/whisper/
 
+# Database
+history.db
+
 # Logs
 *.log
 nv

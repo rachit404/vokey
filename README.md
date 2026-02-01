@@ -1,6 +1,10 @@
 # 🎙️ Windows Voice-to-Text Assistant
 
-A production-ready Windows background assistant that converts voice to text using OpenAI Whisper and types it at your cursor position.
+A production-ready Windows voice assistant that converts voice to text using OpenAI Whisper and types it at your cursor position.
+
+**Two versions available:**
+- **CLI** (`main.py`): Lightweight background service with no UI
+- **GUI** (`app.py`): Full application with history storage and management
 
 ## ✨ Features
 
@@ -73,6 +77,76 @@ Press Ctrl+C to exit.
 5. Press Ctrl+M again (recording stops)
 6. Text appears: Hello, this is a test
 ```
+
+---
+
+## 🖥️ GUI Application
+
+### Running the GUI Version
+
+```bash
+python app.py
+```
+
+### GUI Features
+
+- ✅ **Visual Interface**: Clean, modern tkinter interface
+- ✅ **History Storage**: All transcriptions saved to SQLite database
+- ✅ **History Management**: View, copy, and delete transcriptions
+- ✅ **Real-time Status**: See recording/processing status
+- ✅ **Hotkey Support**: Same Ctrl+M toggle works in GUI mode
+- ✅ **Persistent Data**: History survives app restarts
+
+### GUI Controls
+
+**Main Window:**
+- **Start Recording Button**: Click or press Ctrl+M to start/stop
+- **Clear All Button**: Delete all history (with confirmation)
+- **History Panel**: Scrollable list of all transcriptions
+
+**Per-item Controls:**
+- **Copy Button**: Copy text to clipboard
+- **Delete Button**: Remove individual transcription
+
+### Screenshot
+
+```
+┌─────────────────────────────────────────────────────┐
+│  🎙️ Voice Assistant                    [ _ ] [□] [×] │
+├─────────────────────────────────────────────────────┤
+│  Status: Idle                    Hotkey: CTRL+M     │
+├─────────────────────────────────────────────────────┤
+│  [🎤 Start Recording]  [🗑️ Clear All]                │
+├─────────────────────────────────────────────────────┤
+│  📝 Transcription History (3 items)                 │
+│  ┌───────────────────────────────────────────────┐ │
+│  │ 2026-02-01 19:15  "Hello, this is a test"    │ │
+│  │                   [📋 Copy] [🗑️ Delete]       │ │
+│  │───────────────────────────────────────────────│ │
+│  │ 2026-02-01 19:10  "Testing voice assistant"  │ │
+│  │                   [📋 Copy] [🗑️ Delete]       │ │
+│  └───────────────────────────────────────────────┘ │
+└─────────────────────────────────────────────────────┘
+```
+
+### Database Location
+
+History is stored in `history.db` (SQLite) in the application directory:
+```
+vokey/
+├── app.py
+├── main.py
+├── core.py
+├── history.db  ← History database
+└── requirements.txt
+```
+
+**Backup your history:**
+```bash
+copy history.db history_backup.db
+```
+
+---
 
 ## 🏗️ Building an Executable (.exe)
 
