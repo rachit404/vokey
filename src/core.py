@@ -16,7 +16,7 @@ import numpy as np
 import sounddevice as sd
 import whisper
 import pyautogui
-from typing import Optional
+from typing import Optional, Tuple
 
 
 class AudioRecorder:
@@ -162,17 +162,40 @@ class TextTyper:
         # Disable pyautogui fail-safe (moving mouse to corner won't stop it)
         pyautogui.FAILSAFE = False
     
-    def type_text(self, text: str):
+    def click_at_position(self, x: int, y: int, focus_delay: float = 0.15):
+        """
+        Click at a specific screen position.
+        
+        Args:
+            x: X coordinate
+            y: Y coordinate
+            focus_delay: Delay after clicking to allow focus (seconds)
+        """
+        try:
+            pyautogui.click(x, y)
+            # Wait for the application to gain focus
+            time.sleep(focus_delay)
+        except Exception as e:
+            print(f"Error clicking at position ({x}, {y}): {e}", file=sys.stderr)
+    
+    def type_text(self, text: str, click_position: Optional[tuple] = None):
         """
         Type text at the current cursor position.
         
         Args:
             text: The text to type
+            click_position: Optional (x, y) tuple to click before typing
         """
         if not text:
             return
         
         try:
+            # Click at position if specified
+            if click_position:
+                x, y = click_position
+                print(f"🖱️  Clicking at position ({x}, {y})...")
+                self.click_at_position(x, y)
+            
             print(f"⌨️  Typing text...")
             # Small delay to ensure the application is ready to receive input
             time.sleep(0.1)

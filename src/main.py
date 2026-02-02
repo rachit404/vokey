@@ -3,7 +3,7 @@ Windows Voice Assistant - CLI Version
 ======================================
 Converts voice to text using OpenAI Whisper and types it at the cursor position.
 
-Hotkey: Ctrl + M
+Hotkey: Alt + R
 - Press once: Start recording
 - Press again: Stop recording, transcribe, and type text
 
@@ -16,6 +16,7 @@ import threading
 import time
 import keyboard
 from core import AudioRecorder, WhisperTranscriber, TextTyper
+from cursor_tracker import CursorTracker, CursorHighlighter, AudioFeedback
 
 
 class VoiceAssistant:
@@ -36,6 +37,9 @@ class VoiceAssistant:
         self.recorder = AudioRecorder()
         self.transcriber = WhisperTranscriber(model_name=whisper_model)
         self.typer = TextTyper()
+        self.cursor_tracker = CursorTracker()
+        self.cursor_highlighter = CursorHighlighter()
+        self.audio_feedback = AudioFeedback()
         self.is_running = False
         self.processing_lock = threading.Lock()
     
@@ -61,14 +65,34 @@ class VoiceAssistant:
                     print("⚠️  No text transcribed.")
                     return
                 
-                # Type the text at the cursor position
-                self.typer.type_text(text)
+                # Get the stored cursor position
+                stored_pos = self.cursor_tracker.get_stored_position()
+                
+                # Type the text at the stored cursor position
+                if stored_pos:
+                    self.typer.type_text(text, click_position=stored_pos)
+                else:
+                    # Fallback: type at current position
+                    self.typer.type_text(text)
                 
             finally:
                 self.processing_lock.release()
         else:
             # Start recording
             if not self.processing_lock.locked():
+                # Store cursor position
+                self.cursor_tracker.store_position()
+                pos = self.cursor_tracker.get_stored_position()
+                
+                if pos:
+                    # Show visual feedback at cursor position
+                    self.cursor_highlighter.highlight(pos[0], pos[1], duration=500)
+                    print(f"📍 Cursor position stored: {pos}")
+                
+                # Play audio feedback
+                self.audio_feedback.play_beep(frequency=800, duration=100)
+                
+                # Start recording
                 self.recorder.start_recording()
     
     def start(self):
@@ -105,7 +129,7 @@ class VoiceAssistant:
 def main():
     """Main entry point."""
     # Configuration
-    HOTKEY = "ctrl+m"  # Change this to customize the hotkey
+    HOTKEY = "alt+r"  # Change this to customize the hotkey
     WHISPER_MODEL = "base"   # Options: tiny, base, small, medium, large
     
     # Create and start the assistant

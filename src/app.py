@@ -167,7 +167,7 @@ class VoiceAssistantGUI:
         # State
         self.is_recording = False
         self.recording_start_time = None
-        self.hotkey = "ctrl+m"
+        self.hotkey = "alt+r"
         
         # Build UI
         self.create_ui()
