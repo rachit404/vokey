@@ -20,6 +20,7 @@ from datetime import datetime
 from pathlib import Path
 import keyboard
 from core import AudioRecorder, WhisperTranscriber, TextTyper
+from cursor_tracker import CursorTracker, CursorHighlighter, AudioFeedback
 
 
 class DatabaseManager:
@@ -158,11 +159,22 @@ class VoiceAssistantGUI:
         self.root.geometry("700x600")
         self.root.resizable(True, True)
         
+        # Set window icon
+        icon_path = Path(__file__).parent.parent / "artifacts" / "favicon_io" / "favicon.ico"
+        if icon_path.exists():
+            try:
+                self.root.iconbitmap(icon_path)
+            except Exception as e:
+                print(f"Could not load icon: {e}")
+        
         # Initialize components
         self.db = DatabaseManager()
         self.recorder = AudioRecorder()
         self.transcriber = WhisperTranscriber(model_name="base")
         self.typer = TextTyper()
+        self.cursor_tracker = CursorTracker()
+        self.cursor_highlighter = CursorHighlighter()
+        self.audio_feedback = AudioFeedback()
         
         # State
         self.is_recording = False
@@ -280,6 +292,19 @@ class VoiceAssistantGUI:
             # Start recording
             self.is_recording = True
             self.recording_start_time = time.time()
+            
+            # Store cursor position
+            self.cursor_tracker.store_position()
+            pos = self.cursor_tracker.get_stored_position()
+            
+            # Show visual feedback at cursor
+            if pos:
+                self.cursor_highlighter.highlight(pos[0], pos[1], duration=500)
+            
+            # Play audio feedback
+            self.audio_feedback.play_beep(frequency=800, duration=100)
+            
+            # Start recording
             self.recorder.start_recording()
             self.status_label.config(text="Status: Recording...", fg="#f44336")
             self.record_btn.config(text="🛑 Stop Recording", bg="#ff5722")
@@ -320,8 +345,12 @@ class VoiceAssistantGUI:
         # Save to database
         self.db.add_transcription(text, duration)
         
-        # Type text
-        self.typer.type_text(text)
+        # Get stored cursor position and type text
+        stored_pos = self.cursor_tracker.get_stored_position()
+        if stored_pos:
+            self.typer.type_text(text, click_position=stored_pos)
+        else:
+            self.typer.type_text(text)
         
         # Update UI
         self.root.after(0, self.refresh_history)

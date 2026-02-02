@@ -5,9 +5,9 @@ Provides system tray icon with menu for background process management.
 """
 
 import sys
+from pathlib import Path
 import pystray
 from PIL import Image
-from icon_generator import create_microphone_icon
 
 
 class TrayIcon:
@@ -75,8 +75,14 @@ class TrayIcon:
         Start the system tray icon.
         This is a blocking call - it will run until the icon is stopped.
         """
-        # Create the icon image
-        icon_image = create_microphone_icon(64)
+        # Load the icon image from artifacts folder
+        icon_path = Path(__file__).parent.parent / "artifacts" / "favicon_io" / "favicon.ico"
+        if not icon_path.exists():
+            print(f"Warning: Icon file not found at {icon_path}")
+            # Create a simple fallback icon
+            icon_image = Image.new('RGB', (64, 64), color='blue')
+        else:
+            icon_image = Image.open(icon_path)
         
         # Create the tray icon
         self.icon = pystray.Icon(

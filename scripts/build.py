@@ -20,6 +20,18 @@ def main():
     project_dir = script_dir.parent
     os.chdir(project_dir)
     
+    # Kill any running Vokey processes first
+    print("Killing any running Vokey processes...")
+    kill_script = script_dir / "kill_processes.bat"
+    if kill_script.exists():
+        try:
+            subprocess.run([str(kill_script)], check=False, shell=True)
+        except Exception as e:
+            print(f"  Warning: Could not run kill script: {e}")
+    else:
+        print("  Warning: kill_processes.bat not found, skipping...")
+    print()
+    
     # Install PyInstaller if needed
     print("Checking PyInstaller installation...")
     try:
@@ -35,6 +47,9 @@ def main():
     
     # Clean previous builds
     print("Cleaning previous builds...")
+    import time
+    time.sleep(1)  # Wait for processes to fully terminate
+    
     for dir_name in ["build", "dist"]:
         if os.path.exists(dir_name):
             try:
@@ -42,7 +57,7 @@ def main():
                 print(f"  Removed {dir_name}/")
             except PermissionError as e:
                 print(f"  Warning: Could not remove {dir_name}/ (some files may be in use)")
-                print(f"  Continuing anyway... PyInstaller will overwrite files.")
+                print(f"  PyInstaller will attempt to overwrite...")
     print()
     
     # Build GUI version
@@ -51,7 +66,7 @@ def main():
     print("=" * 60)
     try:
         subprocess.run(
-            [sys.executable, "-m", "PyInstaller", "scripts/vokey_gui.spec", "--clean"],
+            [sys.executable, "-m", "PyInstaller", "scripts/vokey_gui.spec", "--clean", "--noconfirm"],
             check=True
         )
         print("GUI build completed successfully!")
@@ -66,7 +81,7 @@ def main():
     print("=" * 60)
     try:
         subprocess.run(
-            [sys.executable, "-m", "PyInstaller", "scripts/vokey_background.spec", "--clean"],
+            [sys.executable, "-m", "PyInstaller", "scripts/vokey_background.spec", "--clean", "--noconfirm"],
             check=True
         )
         print("Background build completed successfully!")

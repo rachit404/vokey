@@ -61,7 +61,7 @@ pip install pillow
 #### ImportError with cursor_tracker
 **Solution:** Make sure you're running from the vokey directory:
 ```bash
-cd "d:\My GitHub\rachit404\vokey"
+cd "vokey"
 python start_background.pyw
 ```
 
@@ -105,7 +105,7 @@ If console mode works but background doesn't, it's likely a dependency issue wit
 
 2. **Navigate to the project:**
    ```bash
-   cd "d:\My GitHub\rachit404\vokey"
+   cd "vokey"
    ```
 
 3. **Activate virtual environment** (if using one):
@@ -134,7 +134,7 @@ If console mode works but background doesn't, it's likely a dependency issue wit
 
 ```bash
 # All-in-one fix
-cd "d:\My GitHub\rachit404\vokey"
+cd "vokey"
 pip install pywin32 pystray pillow --upgrade
 python start_background.pyw
 ```
